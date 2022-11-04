@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { MySqlConfigModule } from './configs/database/configs.module';
 import { MySqlConfigService } from './configs/database/configs.service';
 import { LoggerMiddleware } from './middlewares/loggers.middleware';
+import { PostsModule } from './posts/posts.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { LoggerMiddleware } from './middlewares/loggers.middleware';
       useClass: MySqlConfigService,
     }),
     AuthModule,
+    PostsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
