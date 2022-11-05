@@ -10,7 +10,7 @@ export class AuthService {
   constructor(
     private dataSource: DataSource,
     @InjectRepository(Users)
-    private readonly userRepository: Repository<Users>,
+    private readonly usersRepository: Repository<Users>,
   ) {}
 
   /**
@@ -23,7 +23,7 @@ export class AuthService {
     await queryRunner.startTransaction();
 
     //데이터베이스를 조회하여 이미 존재하는 유저인지 검사.
-    const existUser = await this.userRepository.findOneBy({
+    const existUser = await this.usersRepository.findOneBy({
       email: createUserDto.email,
     });
 
@@ -34,7 +34,7 @@ export class AuthService {
 
     // 데이터베이스에 바로 저장하지 않고 암호화해서 저장합니다.
     const hashedPassword = await bcrypt.hash(createUserDto.password, 12);
-    return this.userRepository.save({
+    return this.usersRepository.save({
       ...createUserDto,
       password: hashedPassword,
     });
