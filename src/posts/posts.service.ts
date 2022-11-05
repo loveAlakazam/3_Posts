@@ -1,9 +1,22 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { Posts } from '../entities/Posts';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 
 @Injectable()
 export class PostsService {
+  constructor(
+    private dataSource: DataSource,
+    @InjectRepository(Posts)
+    private readonly postsRepository: Repository<Posts>,
+  ) {}
+
+  /** 암호화 체크 */
+
+  /** CRRUD */
+
   create(createPostDto: CreatePostDto) {
     return 'This action adds a new post';
   }
