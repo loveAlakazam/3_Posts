@@ -18,10 +18,16 @@ export class Posts {
   })
   postId: number;
 
-  @Column({ name: 'tittle', comment: '게시글 제목' })
+  /**
+   * 게시글 제목 (최대 20자)
+   */
+  @Column({ name: 'tittle', length: 20, comment: '게시글 제목' })
   title: string;
 
-  @Column({ name: 'content', comment: '게시글 내용' })
+  /**
+   * 게시글 본문 (최대 200자)
+   */
+  @Column({ name: 'content', length: 200, comment: '게시글 본문' })
   content: string;
 
   @Column({
@@ -33,10 +39,16 @@ export class Posts {
   })
   postType: string;
 
+  /**
+   * 공개글 postPassword: null
+   * 비밀글 postPassword: Not null (암호화 된 값)
+   */
   @Column({
     type: 'text',
     name: 'postPassword',
     comment: '게시글 비밀번호(비밀글 한정)',
+    nullable: true,
+    default: () => null,
   })
   postPassword: string;
 
