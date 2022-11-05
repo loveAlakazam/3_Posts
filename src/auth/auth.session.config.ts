@@ -9,11 +9,11 @@ export const sessionConfig = (app) => {
       saveUninitialized: true,
       secret: process.env.COOKIE_SECRET,
       cookie: {
-        maxAge: 1000 * 60 * 60, //60분
+        maxAge: 3600000,
       },
     }),
   );
 
-  app.use(passport.initilize());
+  app.use(passport.initialize());
   app.use(passport.session());
 };
