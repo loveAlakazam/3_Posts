@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  NotFoundException,
   UnauthorizedException,
   UseFilters,
 } from '@nestjs/common';
@@ -15,12 +14,10 @@ import { PostType } from '../entities/enums/PostType';
 import { Users } from '../entities/Users';
 import { PRIVATE_PASSWORD_REGEX } from 'src/common/regex/regex';
 import { PostPagination } from './dto/post-pagination.dto';
-import { HttpExceptionFilter } from 'src/common/utils/http-exception/http-exception.filter';
 import { RemovePostDto } from './dto/remove-post.dto';
 import { PrivatePostDetailDto } from './dto/private-post-detail.dto';
 import { PostInfoWithoutPasswordDto } from './dto/post-info-without-password.dto';
 
-@UseFilters(HttpExceptionFilter)
 @Injectable()
 export class PostsService {
   constructor(

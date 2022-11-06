@@ -9,7 +9,6 @@ import {
   UseGuards,
   Query,
   ParseIntPipe,
-  UseFilters,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -19,7 +18,6 @@ import { Users } from '../entities/Users';
 import { User } from '../auth/auth.decorator';
 import { PostPagination } from './dto/post-pagination.dto';
 import { RemovePostDto } from './dto/remove-post.dto';
-import { HttpExceptionFilter } from 'src/common/utils/http-exception/http-exception.filter';
 import { PrivatePostDetailDto } from './dto/private-post-detail.dto';
 
 @Controller('posts')

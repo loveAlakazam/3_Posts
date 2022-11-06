@@ -7,8 +7,6 @@ import { Users } from '../../entities/Users';
 import { Posts } from '../../entities/Posts';
 import { InsertResult, Repository } from 'typeorm';
 import { DateColumns } from '../../entities/embededs/date-columns';
-import { InvalidPostPasswordRegexException } from '../exceptions/post-exceptions';
-import { errorMsg } from '../exceptions/error-messages';
 
 const mockPostRepository = jest.fn(() => ({
   create: jest.fn(),
