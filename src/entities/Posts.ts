@@ -28,7 +28,7 @@ export class Posts {
   /**
    * 게시글 제목 (최대 20자)
    */
-  @Column({ name: 'tittle', length: 20, comment: '게시글 제목' })
+  @Column({ name: 'title', length: 20, comment: '게시글 제목' })
   title: string;
 
   /**
@@ -66,15 +66,12 @@ export class Posts {
   dateColumns: DateColumns;
 
   /**
-   * 작성자 ID
+   * 게시글:유저 = N:1
    */
   @Column('int', { primary: true, name: 'userId' })
   userId: number;
 
-  /**
-   * 게시글:유저 = N:1
-   */
-  @ManyToOne(() => Users, (users) => users.userId, {
+  @ManyToOne(() => Users, (users) => users.Posts, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
