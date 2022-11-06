@@ -1,6 +1,13 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { DateColumns } from './embededs/date-columns';
 import { PostType } from './enums/PostType';
+import { Users } from './Users';
 
 /**
  * 한 페이지 내에서 모든 게시글을 최신글 순서로
@@ -57,4 +64,20 @@ export class Posts {
    */
   @Column(() => DateColumns, { prefix: false })
   dateColumns: DateColumns;
+
+  /**
+   * 작성자 ID
+   */
+  @Column('int', { primary: true, name: 'userId' })
+  userId: number;
+
+  /**
+   * 게시글:유저 = N:1
+   */
+  @ManyToOne(() => Users, (users) => users.userId, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn([{ name: 'userId', referencedColumnName: 'userId' }])
+  User: Users;
 }
