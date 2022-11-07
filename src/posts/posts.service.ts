@@ -120,9 +120,6 @@ export class PostsService {
   async findAllPosts(options: PaginationOption) {
     const { page, pageSize } = options;
 
-    const _page = page ? page : 1;
-    const _pageSize = pageSize ? pageSize : 20;
-
     // 모든글
     // 추가로드는 20개 단위로 나타낸다.
     // 비밀번호를 제외한 나머지
@@ -130,14 +127,12 @@ export class PostsService {
       .createQueryBuilder('posts')
       .innerJoin('posts.User', 'users')
       .orderBy('posts.createdAt', 'DESC')
-      .limit(_pageSize)
-      .offset(_pageSize * (_page - 1))
+      .limit(pageSize)
+      .offset(pageSize * (page - 1))
       .select(['postId', 'title', 'users.userId AS userId', 'name'])
       .getRawMany();
 
-    // const result = new PostListDto();
-
-    return { list: posts, page: _page, pageSize: posts.length };
+    return { list: posts, page: page, pageSize: posts.length };
   }
 
   async findOnePost(

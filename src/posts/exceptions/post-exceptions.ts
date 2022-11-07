@@ -2,7 +2,6 @@ import {
   BadRequestException,
   ForbiddenException,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 
 /**
@@ -45,8 +44,8 @@ export class InvalidPostPasswordException extends ForbiddenException {
  * * 비밀글 비밀번호가 없어서 게시물 생성 에러
  */
 export class EmptyPostPasswordException extends BadRequestException {
-  constructor(msg: string) {
-    super(msg);
+  constructor() {
+    super('비밀번호를 입력해주세요!');
   }
 }
 
