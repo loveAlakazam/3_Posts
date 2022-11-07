@@ -13,10 +13,11 @@ import * as bcrypt from 'bcrypt';
 import { PostType } from '../entities/enums/PostType';
 import { Users } from '../entities/Users';
 import { PRIVATE_PASSWORD_REGEX } from 'src/common/regex/regex';
-import { PostPagination } from './dto/post-pagination.dto';
+import { PaginationOption } from './dto/pagination-option.dto';
 import { RemovePostDto } from './dto/remove-post.dto';
 import { PrivatePostDetailDto } from './dto/private-post-detail.dto';
 import { PostInfoWithoutPasswordDto } from './dto/post-info-without-password.dto';
+import { PostListDto } from './dto/post-list.dto';
 
 @Injectable()
 export class PostsService {
@@ -116,22 +117,27 @@ export class PostsService {
     return result;
   }
 
-  async findAllPosts(
-    postPagination: PostPagination,
-  ): Promise<PostInfoWithoutPasswordDto[]> {
+  async findAllPosts(options: PaginationOption) {
+    const { page, pageSize } = options;
+
+    const _page = page ? page : 1;
+    const _pageSize = pageSize ? pageSize : 20;
+
     // 모든글
     // 추가로드는 20개 단위로 나타낸다.
     // 비밀번호를 제외한 나머지
-    const { page, pageSize } = postPagination;
-    const result = await this.postsRepository
+    const posts = await this.postsRepository
       .createQueryBuilder('posts')
       .innerJoin('posts.User', 'users')
+      .orderBy('posts.createdAt', 'DESC')
+      .limit(_pageSize)
+      .offset(_pageSize * (_page - 1))
       .select(['postId', 'title', 'users.userId AS userId', 'name'])
-      .take(pageSize)
-      .skip(pageSize * (page - 1))
       .getRawMany();
 
-    return result;
+    // const result = new PostListDto();
+
+    return { list: posts, page: _page, pageSize: posts.length };
   }
 
   async findOnePost(
@@ -160,7 +166,15 @@ export class PostsService {
       //비밀번호를 제외한 나머지 정보를 준다.
       post.postPassword = null;
     }
-    return post;
+
+    return {
+      postId: post.postId,
+      postType: post.postType,
+      title: post.title,
+      content: post.content,
+      userId: post.userId,
+      name: post.name,
+    };
   }
 
   async updatePost(user: Users, postId: number, updatePostDto: UpdatePostDto) {
