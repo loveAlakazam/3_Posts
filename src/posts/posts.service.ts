@@ -166,7 +166,15 @@ export class PostsService {
       //비밀번호를 제외한 나머지 정보를 준다.
       post.postPassword = null;
     }
-    return post;
+
+    return {
+      postId: post.postId,
+      postType: post.postType,
+      title: post.title,
+      content: post.content,
+      userId: post.userId,
+      name: post.name,
+    };
   }
 
   async updatePost(user: Users, postId: number, updatePostDto: UpdatePostDto) {
