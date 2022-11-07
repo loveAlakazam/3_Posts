@@ -67,11 +67,8 @@ export class PostsController {
    * @returns
    */
   @Get()
-  async findAll(
-    @Query('page') page?: number,
-    @Query('pageSize') pageSize?: number,
-  ) {
-    return await this.postsService.findAllPosts({ page, pageSize });
+  async findAll(@Query() option: PaginationOption) {
+    return await this.postsService.findAllPosts(option);
   }
 
   /**
