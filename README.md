@@ -98,7 +98,7 @@ $ npm install
 }
 ```
 
-<br>
+<br><br>
 
 #### Case : 타이틀 길이가 너무 길 때 (400)
 
@@ -123,6 +123,8 @@ $ npm install
 }
 ```
 
+<br><br>
+
 #### Case : postType이 '공개글', '비밀글'이 아닌 다른 값일 때 (400)
 
 - Request
@@ -145,7 +147,7 @@ $ npm install
 }
 ```
 
-<br>
+<br><br>
 
 #### Case : title, content 에 빈값이 들어갈 때 (400)
 
@@ -172,7 +174,7 @@ $ npm install
 }
 ```
 
-<br>
+<br><br>
 
 ### 게시글 수정
 
@@ -201,7 +203,7 @@ $ npm install
 }
 ```
 
-<br>
+<br><br>
 
 #### Case : title 을 20자 초과할때 (400)
 
@@ -247,7 +249,7 @@ $ npm install
 }
 ```
 
-<br>
+<br><br>
 
 #### Case : 작성자가 아닌 타인이 수정할 경우 (401)
 
@@ -270,16 +272,31 @@ $ npm install
 }
 ```
 
-<br>
-
-<br>
+<br><br>
 
 ### 게시글 삭제
 
+> Soft Delete 방식으로 삭제했습니다.
+
 > URL : `/api/posts/:postId`
 
-<br>
-<br>
+#### Case : 공개글 삭제 (200)
+
+> URL : `localhost:3000/api/posts/17`
+
+- Request
+
+- Response
+
+```json
+{
+  "generatedMaps": [],
+  "raw": [],
+  "affected": 1
+}
+```
+
+<br><br>
 
 ### 비밀글 설정
 
@@ -342,7 +359,7 @@ $ npm install
 }
 ```
 
-<br>
+<br><br>
 
 > #### Case : 비밀번호가 짧을 때 (400)
 
@@ -369,11 +386,11 @@ $ npm install
 }
 ```
 
-<br>
+<br><br>
 
 > #### Case : 비밀번호 양식(숫자 최소 1개)에 어긋날 경우 (400)
 
-- Request
+- Request(Body)
 
 ```json
 {
@@ -396,6 +413,166 @@ $ npm install
 
 <br><br>
 
+#### Case: 비밀글 수정 (200)
+
+> URL : `[PATCH] /api/posts/:postId`
+
+- Request(Body)
+
+```json
+{
+  "title": "비밀글 수정",
+  "content": "비밀글 수정했습니다",
+  "postPassword": "bank11brothers"
+}
+```
+
+- Response
+
+```json
+{
+  "generatedMaps": [],
+  "raw": [],
+  "affected": 1
+}
+```
+
+<br><br>
+
+#### Case: 비밀글 수정 실패 - 비밀번호가 일치하지 않을 때 (400)
+
+- Request(Body)
+
+```json
+{
+  "title": "3비밀글 수3정",
+  "content": "비밀글 수정했습니다",
+  "postPassword": "bank2brothers"
+}
+```
+
+- Response
+
+```json
+{
+  "statusCode": 400,
+  "message": "비밀번호가 일치하지 않습니다.",
+  "error": "Bad Request"
+}
+```
+
+<br><br>
+
+#### Case: 비밀글 수정 실패 - 너무 짧은 title/content 값 (400)
+
+- Request(Body)
+
+```json
+{
+  "title": "",
+  "content": "비밀글 수정했습니다",
+  "postPassword": "bank11brothers"
+}
+```
+
+- Response
+
+```json
+{
+  "statusCode": 400,
+  "message": ["title must be longer than or equal to 1 characters"],
+  "error": "Bad Request"
+}
+```
+
+<br><br>
+
+#### Case: 비밀글 수정 실패 - 타계정으로 수정할 때 (401)
+
+- Request(Body)
+
+```json
+{
+  "title": "비밀글 수정",
+  "content": "비밀글 수정했습니다2222",
+  "postPassword": "bank11brothers"
+}
+```
+
+- Response
+
+```json
+{
+  "statusCode": 401,
+  "message": "접근권한이 없습니다.",
+  "error": "Unauthorized"
+}
+```
+
+<br><br>
+
+#### Case: 비밀글 삭제 (200)
+
+> URL : `[DELETE] /api/posts/:postId`
+
+- Request(Body)
+
+```json
+{
+  "postPassword": "bank11brothers"
+}
+```
+
+- Response
+
+```json
+{
+  "generatedMaps": [],
+  "raw": [],
+  "affected": 1
+}
+```
+
+<br><br>
+
+#### Case: 비밀글 삭제 (401)
+
+> 작성자가 아닌 계정으로 삭제할 때
+
+- Response
+
+```json
+{
+  "statusCode": 401,
+  "message": "접근권한이 없습니다.",
+  "error": "Unauthorized"
+}
+```
+
+<br>
+
+> 비밀번호가 일치하지 않을 때
+
+- Request(Body)
+
+```json
+{
+  "postPassword": "bank11"
+}
+```
+
+- Response
+
+```json
+{
+  "statusCode": 400,
+  "message": "비밀번호가 일치하지 않습니다.",
+  "error": "Bad Request"
+}
+```
+
+<br><br>
+
 ### 게시글 목록
 
 사용자가 앱이나 웹에서 스크롤을 내릴 때마다 오래된 글들이 계속 로드되는 형태
@@ -403,15 +580,289 @@ $ npm install
 > - 게시글이 중복으로 나타나면 안됨.
 > - 추가 로드는 20개 단위
 
-> #### Case : 게시글 20개 이상
+> - URL : `[GET] /api/posts/`
+
+> #### Case : 게시글 한 페이지당 20개씩, 1페이지 (200)
+
+> 요청 URL : `http://localhost:3000/api/posts/`
+
+- Response
+
+```json
+{
+  "list": [
+    {
+      "postId": 22,
+      "title": "비밀글",
+      "userId": 2,
+      "name": "Sheryl Schamberger"
+    },
+    {
+      "postId": 23,
+      "title": "비밀글",
+      "userId": 2,
+      "name": "Sheryl Schamberger"
+    },
+    {
+      "postId": 21,
+      "title": "비밀글",
+      "userId": 2,
+      "name": "Sheryl Schamberger"
+    },
+    {
+      "postId": 20,
+      "title": "공개글",
+      "userId": 2,
+      "name": "Sheryl Schamberger"
+    },
+    {
+      "postId": 18,
+      "title": "공개글",
+      "userId": 2,
+      "name": "Sheryl Schamberger"
+    },
+    {
+      "postId": 19,
+      "title": "공개글",
+      "userId": 2,
+      "name": "Sheryl Schamberger"
+    },
+    {
+      "postId": 16,
+      "title": "공개글",
+      "userId": 2,
+      "name": "Sheryl Schamberger"
+    },
+    {
+      "postId": 17,
+      "title": "공개글",
+      "userId": 2,
+      "name": "Sheryl Schamberger"
+    },
+    {
+      "postId": 15,
+      "title": "공개글",
+      "userId": 2,
+      "name": "Sheryl Schamberger"
+    },
+    {
+      "postId": 13,
+      "title": "공개글",
+      "userId": 2,
+      "name": "Sheryl Schamberger"
+    },
+    {
+      "postId": 14,
+      "title": "공개글",
+      "userId": 2,
+      "name": "Sheryl Schamberger"
+    },
+    {
+      "postId": 11,
+      "title": "공개글",
+      "userId": 1,
+      "name": "Carl Rath"
+    },
+    {
+      "postId": 12,
+      "title": "오늘도 화이팅",
+      "userId": 1,
+      "name": "Carl Rath"
+    },
+    {
+      "postId": 9,
+      "title": "공개글",
+      "userId": 1,
+      "name": "Carl Rath"
+    },
+    {
+      "postId": 10,
+      "title": "공개글",
+      "userId": 1,
+      "name": "Carl Rath"
+    },
+    {
+      "postId": 8,
+      "title": "공개글",
+      "userId": 1,
+      "name": "Carl Rath"
+    },
+    {
+      "postId": 7,
+      "title": "공개글",
+      "userId": 1,
+      "name": "Carl Rath"
+    },
+    {
+      "postId": 6,
+      "title": "공개글",
+      "userId": 1,
+      "name": "Carl Rath"
+    },
+    {
+      "postId": 4,
+      "title": "월요일",
+      "userId": 1,
+      "name": "Carl Rath"
+    },
+    {
+      "postId": 3,
+      "title": "비2밀글22",
+      "userId": 2,
+      "name": "Sheryl Schamberger"
+    }
+  ],
+  "page": 1,
+  "pageSize": 20
+}
+```
 
 <br><br>
 
-### 게시글 상세페이지
+> #### Case : 게시글 한 페이지당 10개씩, 2페이지 (200)
 
-<br>
+- Request : `http://localhost:3000/api/posts/?page=2&pageSize=10`
 
-<br>
+- Response
+
+```json
+{
+  "list": [
+    {
+      "postId": 14,
+      "title": "공개글",
+      "userId": 2,
+      "name": "Sheryl Schamberger"
+    },
+    {
+      "postId": 11,
+      "title": "공개글",
+      "userId": 1,
+      "name": "Carl Rath"
+    },
+    {
+      "postId": 12,
+      "title": "오늘도 화이팅",
+      "userId": 1,
+      "name": "Carl Rath"
+    },
+    {
+      "postId": 9,
+      "title": "공개글",
+      "userId": 1,
+      "name": "Carl Rath"
+    },
+    {
+      "postId": 10,
+      "title": "공개글",
+      "userId": 1,
+      "name": "Carl Rath"
+    },
+    {
+      "postId": 8,
+      "title": "공개글",
+      "userId": 1,
+      "name": "Carl Rath"
+    },
+    {
+      "postId": 7,
+      "title": "공개글",
+      "userId": 1,
+      "name": "Carl Rath"
+    },
+    {
+      "postId": 6,
+      "title": "공개글",
+      "userId": 1,
+      "name": "Carl Rath"
+    },
+    {
+      "postId": 4,
+      "title": "월요일",
+      "userId": 1,
+      "name": "Carl Rath"
+    },
+    {
+      "postId": 3,
+      "title": "비2밀글22",
+      "userId": 2,
+      "name": "Sheryl Schamberger"
+    }
+  ],
+  "page": 2,
+  "pageSize": 10
+}
+```
+
+<br><br>
+
+### 게시글 상세페이지 - 공개글(200)
+
+- Request : `http://localhost:3000/api/posts/1`
+
+- Response
+
+```json
+{
+  "postId": 1,
+  "postType": "공개글",
+  "title": "공개글2",
+  "content": "공개글 테스트 본문2",
+  "userId": 1,
+  "name": "Carl Rath"
+}
+```
+
+<br><br>
+
+### 게시글 상세페이지 - 비밀글(200)
+
+- Request : `http://localhost:3000/api/posts/2`
+
+```json
+{
+  "postPassword": "bank11brothers"
+}
+```
+
+- Response
+
+```json
+{
+  "postId": 2,
+  "postType": "비밀글",
+  "title": "비밀글 수정",
+  "content": "비밀글 수정했습니다",
+  "userId": 1,
+  "name": "Carl Rath"
+}
+```
+
+<br><br>
+
+### 게시글 상세페이지 - 비밀글의 비밀번호가 틀릴 때(400)
+
+> URL : `localhost:3000/api/posts/2`
+
+- Request
+
+```json
+{
+  "postPassword": "bank2brothers"
+}
+```
+
+- Response
+
+```json
+{
+  "statusCode": 400,
+  "message": "비밀번호가 일치하지 않습니다.",
+  "error": "Bad Request"
+}
+```
+
+<br><br>
 
 ### ERD Diagram
 
@@ -422,3 +873,5 @@ $ npm install
 <br><br>
 
 ## 고민과정
+
+- Jest를 이용한 테스트 케이스 만들기
