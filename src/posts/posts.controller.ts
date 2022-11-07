@@ -16,9 +16,9 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { AuthenticatedGuard } from '../auth/auth.guard';
 import { Users } from '../entities/Users';
 import { User } from '../auth/auth.decorator';
-import { PostPagination } from './dto/post-pagination.dto';
 import { RemovePostDto } from './dto/remove-post.dto';
 import { PrivatePostDetailDto } from './dto/private-post-detail.dto';
+import { PaginationOption } from './dto/pagination-option.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -67,8 +67,11 @@ export class PostsController {
    * @returns
    */
   @Get()
-  async findAll(@Query() postPagination: PostPagination) {
-    return await this.postsService.findAllPosts(postPagination);
+  async findAll(
+    @Query('page') page?: number,
+    @Query('pageSize') pageSize?: number,
+  ) {
+    return await this.postsService.findAllPosts({ page, pageSize });
   }
 
   /**
