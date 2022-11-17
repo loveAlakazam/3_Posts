@@ -2,6 +2,16 @@
 
 #### 수행 기간: 2022.11.04 ~ 2022.11.07
 
+<br><br>
+
+## 고민과정 기록
+
+- [Jest를 이용한 테스트 환경만들기](https://ek12mv2.tistory.com/325)
+- [Joi - schema validation을 적용시켜보자](https://ek12mv2.tistory.com/342)
+- [입력데이터가 정규표현식에 알맞는 데이터인지 확인하기](https://ek12mv2.tistory.com/323)
+- [pagination 구현과정과 리팩토링](https://ek12mv2.tistory.com/329)
+
+
 ## 사용기술스택
 
 - Environment : Node.js
@@ -870,8 +880,4 @@ $ npm install
 
 <br><br>
 
-<br><br>
 
-## 고민과정
-
-- Jest를 이용한 테스트 케이스 만들기
