@@ -2,7 +2,7 @@
 
 #### 수행 기간: 2022.11.04 ~ 2022.11.07
 
-<br><br>
+<br>
 
 ## 고민과정 기록
 
@@ -11,6 +11,7 @@
 - [입력데이터가 정규표현식에 알맞는 데이터인지 확인하기](https://ek12mv2.tistory.com/323)
 - [pagination 구현과정과 리팩토링](https://ek12mv2.tistory.com/329)
 
+<br>
 
 ## 사용기술스택
 
@@ -21,14 +22,29 @@
 - ORM : TypeORM
 - Unit-Test: Jest
 
+<br>
 
 ## 느낀점
 
 
 > Jest를 활용한 유닛테스트 케이스작성을 위한 환경세팅과 테스트코드 작성이 낯설고 어려웠습니다.
+>
 > service.spec만 테스트하지 않으며, Repository단을 분리시켜 service.spec 테스트케이스 개선 및 controller.sepc 도 같이 테스트를 진행 할 예정입니다.
 
-- [1차 service 테스트케이스](https://github.com/loveAlakazam/3_Posts/blob/d644e5c2fe2d08d81f8556c208893bb016bf6ad4/src/posts/test/posts.service.spec.ts)
+- [1차 service.spec.ts 테스트케이스](https://github.com/loveAlakazam/3_Posts/blob/d644e5c2fe2d08d81f8556c208893bb016bf6ad4/src/posts/test/posts.service.spec.ts)
+
+
+<br>
+
+### ERD Diagram
+
+유저(Users) : 게시글(Posts) 관계를 1:N 으로 했습니다.
+
+
+<img width="1263" alt="세번째과제erd" src="https://user-images.githubusercontent.com/108318308/202483894-23de4a71-7414-4b07-9fd3-3230bf3b5b16.png">
+
+
+<br><br>
 
 
 ## 프로젝트 실행방법
@@ -886,12 +902,6 @@ $ npm install
 }
 ```
 
-<br><br>
 
-### ERD Diagram
-
-유저(Users) : 게시글(Posts) 관계를 1:N 으로 했습니다.
-
-<br><br>
 
 
