@@ -21,6 +21,9 @@
 - DB : MySQL
 - ORM : TypeORM
 - Unit-Test: Jest
+- Etc: Github Action
+  - 이슈브랜치 자동생성
+  - Node.js 푸시후 특정브랜치에서의 자동빌드 (node 14, 16, 18 version)
 
 <br>
 
