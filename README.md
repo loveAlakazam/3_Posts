@@ -4,12 +4,12 @@
 
 <br>
 
-## 고민과정 기록
+## 겪은 고민과 문제해결 과정 기록
 
-- [Jest를 이용한 테스트 환경만들기](https://ek12mv2.tistory.com/325)
-- [Joi - schema validation을 적용시켜보자](https://ek12mv2.tistory.com/342)
-- [입력데이터가 정규표현식에 알맞는 데이터인지 확인하기](https://ek12mv2.tistory.com/323)
-- [pagination 구현과정과 리팩토링](https://ek12mv2.tistory.com/329)
+- [테스케이스 어떻게 만들지? - Jest를 이용한 테스트 환경만들기](https://ek12mv2.tistory.com/325)
+- [MySQL을 직접 불러오지 않고 테스트를 할수 없을까? - Joi: schema validation을 적용시켜보자](https://ek12mv2.tistory.com/342)
+- [정규표현식에 알맞는 데이터를 확인하려면 어떻게 할까? - 입력데이터가 정규표현식에 알맞는 데이터인지 확인하기](https://ek12mv2.tistory.com/323)
+- [raw데이터에서는 take()과 limit()이 적용되지 않아 pagination이 아닌 전체데이터가 리스폰스로 나와버렸다! 어떻게 해결해야되지?  - pagination 구현과정과 리팩토링](https://ek12mv2.tistory.com/329)
 
 <br>
 
