@@ -19,6 +19,20 @@
 - Language : Typescript
 - DB : MySQL
 - ORM : TypeORM
+- Unit-Test: Jest
+
+
+## 느낀점
+
+
+> Jest를 활용한 유닛테스트 케이스작성을 위한 환경세팅과 테스트코드 작성이 낯설고 어려웠습니다.
+> service.spec만 테스트하지 않으며, Repository단을 분리시켜 service.spec 테스트케이스 개선 및 controller.sepc 도 같이 테스트를 진행 할 예정입니다.
+
+- [1차 service 테스트케이스](https://github.com/loveAlakazam/3_Posts/blob/d644e5c2fe2d08d81f8556c208893bb016bf6ad4/src/posts/test/posts.service.spec.ts)
+
+
+## 프로젝트 실행방법
+
 
 > 런타임 실행
 
