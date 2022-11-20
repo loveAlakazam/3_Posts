@@ -7,6 +7,7 @@ import { Users } from '../../entities/Users';
 import { Posts } from '../../entities/Posts';
 import { InsertResult, Repository } from 'typeorm';
 import { DateColumns } from '../../entities/embededs/date-columns';
+import { PostsRepository } from '../posts.repository';
 
 const mockPostRepository = jest.fn(() => ({
   create: jest.fn(),
@@ -28,13 +29,15 @@ type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
 
 describe('PostsService', () => {
   let service: PostsService;
-  let postRepository: MockRepository<Posts>;
-  let usersRepository: MockRepository<Users>;
+  let postsRepository: PostsRepository;
+  // let postRepository: MockRepository<Posts>;
+  // let usersRepository: MockRepository<Users>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PostsService,
+        PostsRepository,
         {
           provide: getRepositoryToken(Posts),
           useValue: mockPostRepository(),
@@ -47,13 +50,14 @@ describe('PostsService', () => {
     }).compile();
 
     service = module.get<PostsService>(PostsService);
-    postRepository = module.get<MockRepository<Posts>>(
-      getRepositoryToken(Posts),
-    );
+    postsRepository = module.get<PostsRepository>(PostsRepository);
+    // postRepository = module.get<MockRepository<Posts>>(
+    //   getRepositoryToken(Posts),
+    // );
 
-    usersRepository = module.get<MockRepository<Users>>(
-      getRepositoryToken(Users),
-    );
+    // usersRepository = module.get<MockRepository<Users>>(
+    //   getRepositoryToken(Users),
+    // );
   });
 
   it('should be defined', () => {
@@ -78,9 +82,6 @@ describe('PostsService', () => {
         dateColumns: new DateColumns(),
       };
 
-      // postRepository.createQueryBuilder.mockResolvedValue(post);
-      // expect(postRepository.createQueryBuilder).toHaveBeenCalled();
-      // expect(await service.createPost(user, post)).toBe(InsertResult);
       const insertResult = new InsertResult();
       jest
         .spyOn(service, 'createPost')
