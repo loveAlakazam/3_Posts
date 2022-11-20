@@ -4,30 +4,25 @@ import {
   UnauthorizedException,
   UseFilters,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { InsertResult, Repository } from 'typeorm';
-import { Posts } from '../entities/Posts';
+import { InsertResult } from 'typeorm';
+
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import * as bcrypt from 'bcrypt';
 import { PostType } from '../entities/enums/PostType';
-import { Users } from '../entities/Users';
+
 import { PRIVATE_PASSWORD_REGEX } from 'src/common/regex/regex';
 import { PaginationOption } from './dto/pagination-option.dto';
 import { RemovePostDto } from './dto/remove-post.dto';
 import { PrivatePostDetailDto } from './dto/private-post-detail.dto';
 import { PostInfoWithoutPasswordDto } from './dto/post-info-without-password.dto';
-import { PostListDto } from './dto/post-list.dto';
+import { PostsRepository } from './posts.repository';
+import { Users } from 'src/entities/Users';
+import { Posts } from 'src/entities/Posts';
 
 @Injectable()
 export class PostsService {
-  constructor(
-    @InjectRepository(Users)
-    private readonly usersRepository: Repository<Users>,
-
-    @InjectRepository(Posts)
-    private readonly postsRepository: Repository<Posts>,
-  ) {}
+  constructor(private readonly postsRepository: PostsRepository) {}
 
   /**
    * 입력받은 평문에 bcrypt 알고리즘을 적용합니다. (비밀번호 암호화)
@@ -84,102 +79,80 @@ export class PostsService {
     }
   }
 
+  /**
+   * @description : 게시글 생성
+   * @param user
+   * @param createPostDto
+   * @returns
+   */
   async createPost(
     user: Users,
     createPostDto: CreatePostDto,
   ): Promise<InsertResult> {
-    if (createPostDto.postType === PostType.PRIVATE_POST) {
-      const originPassword = createPostDto.postPassword;
-      if (!originPassword) {
-        throw new BadRequestException('비밀번호를 입력해주세요');
+    try {
+      if (createPostDto.postType === PostType.PRIVATE_POST) {
+        const originPassword = createPostDto.postPassword;
+        if (!originPassword) {
+          throw new BadRequestException('비밀번호를 입력해주세요');
+        }
+
+        // 비밀번호 정규표현식
+        const isRegex = originPassword.match(PRIVATE_PASSWORD_REGEX);
+        if (!isRegex)
+          throw new BadRequestException(
+            '비밀번호는 6자리 이상이며, 숫자는 최소 1개가 필요합니다.',
+          );
+
+        //입력받은 비밀번호를 암호화
+        const hashedPostPassword = await this.hash(originPassword);
+        createPostDto.postPassword = hashedPostPassword;
       }
 
-      // 비밀번호 정규표현식
-      const isRegex = originPassword.match(PRIVATE_PASSWORD_REGEX);
-      if (!isRegex)
-        throw new BadRequestException(
-          '비밀번호는 6자리 이상이며, 숫자는 최소 1개가 필요합니다.',
-        );
-
-      //입력받은 비밀번호를 암호화
-      const hashedPostPassword = await this.hash(originPassword);
-      createPostDto.postPassword = hashedPostPassword;
+      // Post 추가
+      return await this.postsRepository.createPost(user, createPostDto);
+    } catch (error) {
+      throw error;
     }
-
-    // Post 추가
-    const result = await this.postsRepository
-      .createQueryBuilder('posts')
-      .insert()
-      .into(Posts)
-      .values({ ...createPostDto, userId: user.userId })
-      .execute();
-
-    return result;
   }
 
   async findAllPosts(options: PaginationOption) {
-    const { page, pageSize } = options;
-
-    // 모든글
-    // 추가로드는 20개 단위로 나타낸다.
-    // 비밀번호를 제외한 나머지
-    const posts = await this.postsRepository
-      .createQueryBuilder('posts')
-      .innerJoin('posts.User', 'users')
-      .orderBy('posts.createdAt', 'DESC')
-      .limit(pageSize)
-      .offset(pageSize * (page - 1))
-      .select(['postId', 'title', 'users.userId AS userId', 'name'])
-      .getRawMany();
-
-    return { list: posts, page: page, pageSize: posts.length };
+    return await this.postsRepository.findAllPosts(options);
   }
 
   async findOnePost(
     postId: number,
     privatePostDetailDto: PrivatePostDetailDto,
   ): Promise<PostInfoWithoutPasswordDto> {
-    const post = await this.postsRepository
-      .createQueryBuilder('posts')
-      .innerJoin('posts.User', 'users')
-      .select([
-        'postId',
-        'postType',
-        'title',
-        'content',
-        'users.userId AS userId',
-        'name',
-        'postPassword',
-      ])
-      .where('postId = :postId', { postId })
-      .getRawOne();
+    try {
+      const post = await this.postsRepository.findOnePost(postId);
 
-    if (post.postType === PostType.PRIVATE_POST) {
-      // 비밀번호 체크
-      await this.checkPostType(post, privatePostDetailDto.postPassword);
+      if (post.postType === PostType.PRIVATE_POST) {
+        // 비밀번호 체크
+        await this.checkPostType(post, privatePostDetailDto.postPassword);
 
-      //비밀번호를 제외한 나머지 정보를 준다.
-      post.postPassword = null;
+        //비밀번호를 제외한 나머지 정보를 준다.
+        post.postPassword = null;
+      }
+
+      return {
+        postId: post.postId,
+        postType: post.postType,
+        title: post.title,
+        content: post.content,
+        userId: post.userId,
+        name: post.name,
+      };
+    } catch (error) {
+      throw error;
     }
-
-    return {
-      postId: post.postId,
-      postType: post.postType,
-      title: post.title,
-      content: post.content,
-      userId: post.userId,
-      name: post.name,
-    };
   }
 
   async updatePost(user: Users, postId: number, updatePostDto: UpdatePostDto) {
     try {
       const { title, content, postPassword } = updatePostDto;
+
       // 업데이트 대상 게시물 체크
-      const post = await this.postsRepository
-        .createQueryBuilder('posts')
-        .where('postId = :postId', { postId: postId })
-        .getOne();
+      const post = await this.postsRepository.findOnePostAllInfo(postId);
 
       // 유저 체크
       if (user.userId !== post.userId) {
@@ -189,42 +162,31 @@ export class PostsService {
       await this.checkPostType(post, postPassword);
 
       // 수정
-      return await this.postsRepository
-        .createQueryBuilder('posts')
-        .update(Posts)
-        .set({
-          title: title,
-          content: content,
-        })
-        .where('postId = :postId', { postId: postId })
-        .execute();
+      return await this.postsRepository.updatePost(postId, updatePostDto);
     } catch (error) {
       throw error;
     }
   }
 
   async removePost(user: Users, postId: number, removePostDto: RemovePostDto) {
-    const postPassword = removePostDto.postPassword;
+    try {
+      const postPassword = removePostDto.postPassword;
 
-    // 삭제 대상 게시물 체크
-    const post = await this.postsRepository
-      .createQueryBuilder('posts')
-      .where('postId = :postId', { postId: postId })
-      .getOne();
+      // 삭제 대상 게시물 체크
+      const post = await this.postsRepository.findOnePostAllInfo(postId);
 
-    // 유저 체크
-    if (user.userId !== post.userId) {
-      throw new UnauthorizedException('접근권한이 없습니다.');
+      // 유저 체크
+      if (user.userId !== post.userId) {
+        throw new UnauthorizedException('접근권한이 없습니다.');
+      }
+
+      // 타입체크
+      await this.checkPostType(post, postPassword);
+
+      // 삭제
+      return await this.postsRepository.deletePost(postId);
+    } catch (error) {
+      throw error;
     }
-
-    // 타입체크
-    await this.checkPostType(post, postPassword);
-
-    // 삭제
-    return await this.postsRepository
-      .createQueryBuilder('posts')
-      .softDelete()
-      .where('postId = :postId', { postId: postId })
-      .execute();
   }
 }
