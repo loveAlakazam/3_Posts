@@ -78,6 +78,7 @@ $ npm install
 | /api/posts/:postId |  GET   | 게시글 상세조회 |
 | /api/posts/:postId | PATCH  |   게시글 수정   |
 | /api/posts/:postId | DELETE |   게시글 삭제   |
+| /api/posts/weather/today | GET | (테스트) 오늘 날씨상태 확인 |
 
 <br><br>
 
@@ -90,6 +91,15 @@ $ npm install
 > - 제목, 본문 모두 이모지 포함.
 
 - URL: `[POST] localhost:3000/api/posts`
+
+
+#### Ver2. 공개글 등록 (201)
+
+- 응답데이터에 오늘 날씨 상태(weather) 추가
+
+![image](https://user-images.githubusercontent.com/108318308/203454349-015251be-a0f5-4532-af49-f30ad76dff9c.png)
+
+
 
 #### CASE : 공개글 등록 (201)
 
@@ -350,8 +360,22 @@ $ npm install
 ### 비밀글 등록
 
 > URL: `/api/posts/`
->
-> #### Case : 비밀글 등록 (201)
+
+#### Ver2. 비밀글 등록 (201)
+
+- 오늘 날씨 상태 추가
+
+![image](https://user-images.githubusercontent.com/108318308/203454658-0d0c27f9-a6c1-44d8-8789-18c30dbd5754.png)
+
+<br>
+
+#### Ver2. 비밀글 조회 (200)
+
+![image](https://user-images.githubusercontent.com/108318308/203454835-3312fcaa-1703-4b13-97bd-fc7b47886358.png)
+
+<br>
+
+#### Case : 비밀글 등록 (201)
 
 - Request
 
@@ -836,6 +860,14 @@ $ npm install
 <br><br>
 
 ### 게시글 상세페이지 - 공개글(200)
+
+#### Ver2. 공개글 + 날씨상태 데이터 추가
+
+- 이전에 작성한 데이터들은 날씨상테(weather) 컬럼 값이 null 입니다.
+
+![image](https://user-images.githubusercontent.com/108318308/203454613-d13bb83c-7f87-435b-b772-779b4756580a.png)
+
+<br>
 
 - Request : `http://localhost:3000/api/posts/1`
 
