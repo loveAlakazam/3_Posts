@@ -2,6 +2,18 @@
 
 #### 수행 기간: 2022.11.04 ~ 2022.11.07
 
+<br>
+
+## 겪은 고민과 문제해결 과정 기록
+
+- [테스케이스 어떻게 만들지? - Jest를 이용한 테스트 환경만들기](https://ek12mv2.tistory.com/325)
+- [MySQL을 직접 불러오지 않고 테스트를 할수 없을까? - Joi: schema validation을 적용시켜보자](https://ek12mv2.tistory.com/342)
+- [정규표현식에 알맞는 데이터를 확인하려면 어떻게 할까? - 입력데이터가 정규표현식에 알맞는 데이터인지 확인하기](https://ek12mv2.tistory.com/323)
+- [raw데이터에서는 take()과 limit()이 적용되지 않아 pagination이 아닌 전체데이터가 리스폰스로 나와버렸다! 어떻게 해결해야되지? - pagination 구현과정과 리팩토링](https://ek12mv2.tistory.com/329)
+- [(고도화) Axios를 활용하여 OpenAPI 로부터 현재 날씨 데이터를 파싱하기](https://ek12mv2.tistory.com/328)
+
+<br>
+
 ## 사용기술스택
 
 - Environment : Node.js
@@ -9,6 +21,33 @@
 - Language : Typescript
 - DB : MySQL
 - ORM : TypeORM
+- Unit-Test: Jest
+- Etc: Github Action
+  - 이슈브랜치 자동생성
+  - Node.js 푸시후 특정브랜치에서의 자동빌드 (node 14, 16, 18 version)
+  - Axios & OpenAPI
+
+<br>
+
+## 느낀점
+
+> Jest를 활용한 유닛테스트 케이스작성을 위한 환경세팅과 테스트코드 작성이 낯설고 어려웠습니다.
+>
+> service.spec만 테스트하지 않으며, Repository단을 분리시켜 service.spec 테스트케이스 개선 및 controller.sepc 도 같이 테스트를 진행 할 예정입니다.
+
+- [1차 service.spec.ts 테스트케이스](https://github.com/loveAlakazam/3_Posts/blob/d644e5c2fe2d08d81f8556c208893bb016bf6ad4/src/posts/test/posts.service.spec.ts)
+
+<br>
+
+### ERD Diagram
+
+유저(Users) : 게시글(Posts) 관계를 1:N 으로 했습니다.
+
+<img width="1263" alt="세번째과제erd" src="https://user-images.githubusercontent.com/108318308/202483894-23de4a71-7414-4b07-9fd3-3230bf3b5b16.png">
+
+<br><br>
+
+## 프로젝트 실행방법
 
 > 런타임 실행
 
@@ -39,6 +78,7 @@ $ npm install
 | /api/posts/:postId |  GET   | 게시글 상세조회 |
 | /api/posts/:postId | PATCH  |   게시글 수정   |
 | /api/posts/:postId | DELETE |   게시글 삭제   |
+| /api/posts/weather/today | GET | (테스트) 오늘 날씨상태 확인 |
 
 <br><br>
 
@@ -51,6 +91,15 @@ $ npm install
 > - 제목, 본문 모두 이모지 포함.
 
 - URL: `[POST] localhost:3000/api/posts`
+
+
+#### Ver2. 공개글 등록 (201)
+
+- 응답데이터에 오늘 날씨 상태(weather) 추가
+
+![image](https://user-images.githubusercontent.com/108318308/203454349-015251be-a0f5-4532-af49-f30ad76dff9c.png)
+
+
 
 #### CASE : 공개글 등록 (201)
 
@@ -311,8 +360,22 @@ $ npm install
 ### 비밀글 등록
 
 > URL: `/api/posts/`
->
-> #### Case : 비밀글 등록 (201)
+
+#### Ver2. 비밀글 등록 (201)
+
+- 오늘 날씨 상태 추가
+
+![image](https://user-images.githubusercontent.com/108318308/203454658-0d0c27f9-a6c1-44d8-8789-18c30dbd5754.png)
+
+<br>
+
+#### Ver2. 비밀글 조회 (200)
+
+![image](https://user-images.githubusercontent.com/108318308/203454835-3312fcaa-1703-4b13-97bd-fc7b47886358.png)
+
+<br>
+
+#### Case : 비밀글 등록 (201)
 
 - Request
 
@@ -798,6 +861,14 @@ $ npm install
 
 ### 게시글 상세페이지 - 공개글(200)
 
+#### Ver2. 공개글 + 날씨상태 데이터 추가
+
+- 이전에 작성한 데이터들은 날씨상테(weather) 컬럼 값이 null 입니다.
+
+![image](https://user-images.githubusercontent.com/108318308/203454613-d13bb83c-7f87-435b-b772-779b4756580a.png)
+
+<br>
+
 - Request : `http://localhost:3000/api/posts/1`
 
 - Response
@@ -861,17 +932,3 @@ $ npm install
   "error": "Bad Request"
 }
 ```
-
-<br><br>
-
-### ERD Diagram
-
-유저(Users) : 게시글(Posts) 관계를 1:N 으로 했습니다.
-
-<br><br>
-
-<br><br>
-
-## 고민과정
-
-- Jest를 이용한 테스트 케이스 만들기

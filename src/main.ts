@@ -20,6 +20,6 @@ async function bootstrap() {
     origin: '*',
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   });
-  await app.listen(3000);
+  await app.listen(3000, '0.0.0.0'); // Ipv4
 }
 bootstrap();

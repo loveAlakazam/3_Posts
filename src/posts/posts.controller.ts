@@ -9,7 +9,10 @@ import {
   UseGuards,
   Query,
   ParseIntPipe,
+  Req,
+  Ip,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -25,12 +28,31 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   /**
+   * [GET] /api/posts/weather/today
+   */
+  @Get('weather/today')
+  async showTodayWeather(@Req() request: Request) {
+    // 클라이언트의 IP주소를 구한다(IPv4)
+    const IPAddress = request.ip;
+
+    // 클라이언트 IP주소에 해당하는 위치를 구한다.
+    const result = await this.postsService.getWeatherData(IPAddress);
+    return JSON.stringify(result);
+  }
+
+  /**
    * [POST] /api/posts/
    */
   @UseGuards(AuthenticatedGuard)
   @Post()
-  async createPost(@User() user: Users, @Body() createPostDto: CreatePostDto) {
-    return await this.postsService.createPost(user, createPostDto);
+  async createPost(
+    @User() user: Users,
+    @Req() request: Request,
+    @Body() createPostDto: CreatePostDto,
+  ) {
+    // 클라이언트의 IP주소를 구한다(IPv4)
+    const IPAddress = request.ip;
+    return await this.postsService.createPost(user, IPAddress, createPostDto);
   }
 
   /**
@@ -67,11 +89,8 @@ export class PostsController {
    * @returns
    */
   @Get()
-  async findAll(
-    @Query('page') page?: number,
-    @Query('pageSize') pageSize?: number,
-  ) {
-    return await this.postsService.findAllPosts({ page, pageSize });
+  async findAll(@Query() option: PaginationOption) {
+    return await this.postsService.findAllPosts(option);
   }
 
   /**

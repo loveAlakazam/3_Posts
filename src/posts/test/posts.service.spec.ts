@@ -3,10 +3,13 @@ import { PostType } from '../../entities/enums/PostType';
 import { CreatePostDto } from '../dto/create-post.dto';
 import { PostsService } from '../posts.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 import { Users } from '../../entities/Users';
 import { Posts } from '../../entities/Posts';
 import { InsertResult, Repository } from 'typeorm';
 import { DateColumns } from '../../entities/embededs/date-columns';
+import { PostsRepository } from '../posts.repository';
+import { HttpModule } from '@nestjs/axios';
 
 const mockPostRepository = jest.fn(() => ({
   create: jest.fn(),
@@ -28,13 +31,14 @@ type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
 
 describe('PostsService', () => {
   let service: PostsService;
-  let postRepository: MockRepository<Posts>;
-  let usersRepository: MockRepository<Users>;
+  let postsRepository: PostsRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [HttpModule, ConfigModule],
       providers: [
         PostsService,
+        PostsRepository,
         {
           provide: getRepositoryToken(Posts),
           useValue: mockPostRepository(),
@@ -47,13 +51,7 @@ describe('PostsService', () => {
     }).compile();
 
     service = module.get<PostsService>(PostsService);
-    postRepository = module.get<MockRepository<Posts>>(
-      getRepositoryToken(Posts),
-    );
-
-    usersRepository = module.get<MockRepository<Users>>(
-      getRepositoryToken(Users),
-    );
+    postsRepository = module.get<PostsRepository>(PostsRepository);
   });
 
   it('should be defined', () => {
@@ -78,17 +76,14 @@ describe('PostsService', () => {
         dateColumns: new DateColumns(),
       };
 
-      // postRepository.createQueryBuilder.mockResolvedValue(post);
-      // expect(postRepository.createQueryBuilder).toHaveBeenCalled();
-      // expect(await service.createPost(user, post)).toBe(InsertResult);
       const insertResult = new InsertResult();
       jest
         .spyOn(service, 'createPost')
         .mockResolvedValue(Promise.resolve(insertResult));
 
-      return expect(service.createPost(user, post)).resolves.toEqual(
-        insertResult,
-      );
+      return expect(
+        service.createPost(user, '127.0.0.1', post),
+      ).resolves.toEqual(insertResult);
     });
 
     test('비밀글 등록 성공', async () => {
@@ -114,9 +109,9 @@ describe('PostsService', () => {
         .spyOn(service, 'createPost')
         .mockResolvedValue(Promise.resolve(insertResult));
 
-      return expect(service.createPost(user, post)).resolves.toEqual(
-        insertResult,
-      );
+      return expect(
+        service.createPost(user, '127.0.0.1', post),
+      ).resolves.toEqual(insertResult);
     });
 
     test('비밀글 등록 실패 - 너무짧은 비밀번호', async () => {

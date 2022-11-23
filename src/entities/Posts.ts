@@ -60,6 +60,17 @@ export class Posts {
   postPassword: string;
 
   /**
+   * 날씨
+   */
+  @Column({
+    type: 'text',
+    name: 'weather',
+    comment: '게시글 등록할 당시 날짜 (수정불가)',
+    nullable: true,
+  })
+  weather: string;
+
+  /**
    * 게시글 등록일, 수정일, 삭제일
    */
   @Column(() => DateColumns, { prefix: false })
