@@ -9,7 +9,10 @@ import {
   UseGuards,
   Query,
   ParseIntPipe,
+  Req,
+  Ip,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -29,8 +32,14 @@ export class PostsController {
    */
   @UseGuards(AuthenticatedGuard)
   @Post()
-  async createPost(@User() user: Users, @Body() createPostDto: CreatePostDto) {
-    return await this.postsService.createPost(user, createPostDto);
+  async createPost(
+    @User() user: Users,
+    @Req() request: Request,
+    @Body() createPostDto: CreatePostDto,
+  ) {
+    // 클라이언트의 IP주소를 구한다(IPv4)
+    const IPAddress = request.ip;
+    return await this.postsService.createPost(user, IPAddress, createPostDto);
   }
 
   /**
