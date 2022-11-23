@@ -9,7 +9,8 @@
 - [테스케이스 어떻게 만들지? - Jest를 이용한 테스트 환경만들기](https://ek12mv2.tistory.com/325)
 - [MySQL을 직접 불러오지 않고 테스트를 할수 없을까? - Joi: schema validation을 적용시켜보자](https://ek12mv2.tistory.com/342)
 - [정규표현식에 알맞는 데이터를 확인하려면 어떻게 할까? - 입력데이터가 정규표현식에 알맞는 데이터인지 확인하기](https://ek12mv2.tistory.com/323)
-- [raw데이터에서는 take()과 limit()이 적용되지 않아 pagination이 아닌 전체데이터가 리스폰스로 나와버렸다! 어떻게 해결해야되지?  - pagination 구현과정과 리팩토링](https://ek12mv2.tistory.com/329)
+- [raw데이터에서는 take()과 limit()이 적용되지 않아 pagination이 아닌 전체데이터가 리스폰스로 나와버렸다! 어떻게 해결해야되지? - pagination 구현과정과 리팩토링](https://ek12mv2.tistory.com/329)
+- [(고도화) Axios를 활용하여 OpenAPI 로부터 현재 날씨 데이터를 파싱하기](https://ek12mv2.tistory.com/328)
 
 <br>
 
@@ -24,11 +25,11 @@
 - Etc: Github Action
   - 이슈브랜치 자동생성
   - Node.js 푸시후 특정브랜치에서의 자동빌드 (node 14, 16, 18 version)
+  - Axios & OpenAPI
 
 <br>
 
 ## 느낀점
-
 
 > Jest를 활용한 유닛테스트 케이스작성을 위한 환경세팅과 테스트코드 작성이 낯설고 어려웠습니다.
 >
@@ -36,22 +37,17 @@
 
 - [1차 service.spec.ts 테스트케이스](https://github.com/loveAlakazam/3_Posts/blob/d644e5c2fe2d08d81f8556c208893bb016bf6ad4/src/posts/test/posts.service.spec.ts)
 
-
 <br>
 
 ### ERD Diagram
 
 유저(Users) : 게시글(Posts) 관계를 1:N 으로 했습니다.
 
-
 <img width="1263" alt="세번째과제erd" src="https://user-images.githubusercontent.com/108318308/202483894-23de4a71-7414-4b07-9fd3-3230bf3b5b16.png">
-
 
 <br><br>
 
-
 ## 프로젝트 실행방법
-
 
 > 런타임 실행
 
@@ -904,7 +900,3 @@ $ npm install
   "error": "Bad Request"
 }
 ```
-
-
-
-
