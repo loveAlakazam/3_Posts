@@ -5,6 +5,8 @@ import {
   UseFilters,
 } from '@nestjs/common';
 import { InsertResult } from 'typeorm';
+import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -19,10 +21,84 @@ import { PostInfoWithoutPasswordDto } from './dto/post-info-without-password.dto
 import { PostsRepository } from './posts.repository';
 import { Users } from 'src/entities/Users';
 import { Posts } from 'src/entities/Posts';
+import {
+  EmptyPostPasswordException,
+  FailGetWeatherDataException,
+  InvalidPostPasswordException,
+  InvalidPostPasswordRegexException,
+  NotAllowUserException,
+  PostTypeInvalidException,
+} from './exceptions/post-exceptions';
+import { catchError, lastValueFrom, map, Observable } from 'rxjs';
+import * as geoip from 'geoip-lite';
 
 @Injectable()
 export class PostsService {
-  constructor(private readonly postsRepository: PostsRepository) {}
+  constructor(
+    // axios 를 사용하기 위한 HttpService 를 주입
+    private axiosHttpService: HttpService,
+
+    // postRepository 주입
+    private readonly postsRepository: PostsRepository,
+
+    // configModule주입
+    private readonly configService: ConfigService,
+  ) {}
+
+  /**
+   * @description : 클라이언트의 IP주소로 현위치정보를 구하기
+   * @param IPAddress
+   * @returns
+   */
+  private getLocationData(IPAddress: string) {
+    let lat, lng;
+
+    // IPAddress가 로컬호스트라면, 작성자의 집주소로 한다.
+    if (IPAddress === '127.0.0.1') {
+      lat = this.configService.get<number>('LAT');
+      lng = this.configService.get<number>('LNG');
+
+      return { lat, lng };
+    }
+
+    const geoInfo = geoip.lookup(IPAddress);
+    lat = geoInfo.range[0];
+    lng = geoInfo.range[1];
+
+    return { lat, lng };
+  }
+
+  /**
+   * axios를 이용하여, WeatherAPI 로부터 현재 날씨정보를 갖고온다.
+   */
+  async getWeatherData(IPAddress: string) {
+    // IP 주소에 대응되는 위치를 구한다.
+    const { lat, lng } = this.getLocationData(IPAddress);
+
+    // const { lat, lng } = await this.getLocationData();
+    const weather = this.axiosHttpService
+      .get(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${this.configService.get<string>(
+          'OPEN_WEATHER_API',
+        )}`,
+      )
+      .pipe(
+        map((res) => res.data?.weather),
+        map((weather) => {
+          // 현재 날씨 정보를 리턴
+          return weather[0]?.main;
+        }),
+      )
+      .pipe(
+        catchError(() => {
+          // 403 CustomError을 호출한다.
+          throw new FailGetWeatherDataException();
+        }),
+      );
+
+    const result = await lastValueFrom(weather);
+    return result;
+  }
 
   /**
    * 입력받은 평문에 bcrypt 알고리즘을 적용합니다. (비밀번호 암호화)
@@ -57,7 +133,7 @@ export class PostsService {
         // 비공개글
         // 비밀번호 검사
         if (!inputPassword) {
-          throw new BadRequestException('비밀번호를 입력해주세요.');
+          throw new EmptyPostPasswordException();
         }
 
         const isValid = await this.isHashValid(
@@ -65,7 +141,7 @@ export class PostsService {
           post.postPassword,
         );
         if (!isValid) {
-          throw new BadRequestException('비밀번호가 일치하지 않습니다.');
+          throw new InvalidPostPasswordException();
         }
         return;
       }
@@ -75,7 +151,7 @@ export class PostsService {
       }
 
       default:
-        throw new BadRequestException('존재하지 않는 게시판 종류 입니다.');
+        throw new PostTypeInvalidException();
     }
   }
 
@@ -87,29 +163,34 @@ export class PostsService {
    */
   async createPost(
     user: Users,
+    IPAddress: string,
     createPostDto: CreatePostDto,
   ): Promise<InsertResult> {
     try {
       if (createPostDto.postType === PostType.PRIVATE_POST) {
         const originPassword = createPostDto.postPassword;
         if (!originPassword) {
-          throw new BadRequestException('비밀번호를 입력해주세요');
+          throw new EmptyPostPasswordException();
         }
 
         // 비밀번호 정규표현식
         const isRegex = originPassword.match(PRIVATE_PASSWORD_REGEX);
-        if (!isRegex)
-          throw new BadRequestException(
-            '비밀번호는 6자리 이상이며, 숫자는 최소 1개가 필요합니다.',
-          );
+        if (!isRegex) throw new InvalidPostPasswordRegexException();
 
         //입력받은 비밀번호를 암호화
         const hashedPostPassword = await this.hash(originPassword);
         createPostDto.postPassword = hashedPostPassword;
       }
 
+      // 클라이언트 IP주소에 해당하는 위치를 구한뒤, 해당위치에서의 날씨정보를 구한다.
+      const weatherInfo = await this.getWeatherData(IPAddress);
+
       // Post 추가
-      return await this.postsRepository.createPost(user, createPostDto);
+      return await this.postsRepository.createPost(
+        user,
+        createPostDto,
+        weatherInfo,
+      );
     } catch (error) {
       throw error;
     }
@@ -141,6 +222,7 @@ export class PostsService {
         content: post.content,
         userId: post.userId,
         name: post.name,
+        weather: post.weather,
       };
     } catch (error) {
       throw error;
@@ -156,7 +238,7 @@ export class PostsService {
 
       // 유저 체크
       if (user.userId !== post.userId) {
-        throw new UnauthorizedException('접근권한이 없습니다.');
+        throw new NotAllowUserException();
       }
       // 타입체크
       await this.checkPostType(post, postPassword);
@@ -177,7 +259,7 @@ export class PostsService {
 
       // 유저 체크
       if (user.userId !== post.userId) {
-        throw new UnauthorizedException('접근권한이 없습니다.');
+        throw new NotAllowUserException();
       }
 
       // 타입체크

@@ -5,4 +5,5 @@ export class PostInfoWithoutPasswordDto {
   userId: number;
   name: string;
   content?: string;
+  weather?: string;
 }

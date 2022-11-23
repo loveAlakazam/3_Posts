@@ -3,11 +3,13 @@ import { PostType } from '../../entities/enums/PostType';
 import { CreatePostDto } from '../dto/create-post.dto';
 import { PostsService } from '../posts.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 import { Users } from '../../entities/Users';
 import { Posts } from '../../entities/Posts';
 import { InsertResult, Repository } from 'typeorm';
 import { DateColumns } from '../../entities/embededs/date-columns';
 import { PostsRepository } from '../posts.repository';
+import { HttpModule } from '@nestjs/axios';
 
 const mockPostRepository = jest.fn(() => ({
   create: jest.fn(),
@@ -30,11 +32,10 @@ type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
 describe('PostsService', () => {
   let service: PostsService;
   let postsRepository: PostsRepository;
-  // let postRepository: MockRepository<Posts>;
-  // let usersRepository: MockRepository<Users>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [HttpModule, ConfigModule],
       providers: [
         PostsService,
         PostsRepository,
@@ -51,13 +52,6 @@ describe('PostsService', () => {
 
     service = module.get<PostsService>(PostsService);
     postsRepository = module.get<PostsRepository>(PostsRepository);
-    // postRepository = module.get<MockRepository<Posts>>(
-    //   getRepositoryToken(Posts),
-    // );
-
-    // usersRepository = module.get<MockRepository<Users>>(
-    //   getRepositoryToken(Users),
-    // );
   });
 
   it('should be defined', () => {
@@ -87,9 +81,9 @@ describe('PostsService', () => {
         .spyOn(service, 'createPost')
         .mockResolvedValue(Promise.resolve(insertResult));
 
-      return expect(service.createPost(user, post)).resolves.toEqual(
-        insertResult,
-      );
+      return expect(
+        service.createPost(user, '127.0.0.1', post),
+      ).resolves.toEqual(insertResult);
     });
 
     test('비밀글 등록 성공', async () => {
@@ -115,9 +109,9 @@ describe('PostsService', () => {
         .spyOn(service, 'createPost')
         .mockResolvedValue(Promise.resolve(insertResult));
 
-      return expect(service.createPost(user, post)).resolves.toEqual(
-        insertResult,
-      );
+      return expect(
+        service.createPost(user, '127.0.0.1', post),
+      ).resolves.toEqual(insertResult);
     });
 
     test('비밀글 등록 실패 - 너무짧은 비밀번호', async () => {

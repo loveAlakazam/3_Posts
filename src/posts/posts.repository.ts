@@ -18,12 +18,12 @@ export class PostsRepository {
     private readonly postsRepository: Repository<Posts>,
   ) {}
 
-  async createPost(user: Users, createPostDto: CreatePostDto) {
+  async createPost(user: Users, createPostDto: CreatePostDto, weatherInfo) {
     const result = await this.postsRepository
       .createQueryBuilder('posts')
       .insert()
       .into(Posts)
-      .values({ ...createPostDto, userId: user.userId })
+      .values({ ...createPostDto, userId: user.userId, weather: weatherInfo })
       .execute();
 
     return result;
@@ -66,6 +66,7 @@ export class PostsRepository {
         'users.userId AS userId',
         'name',
         'postPassword',
+        'weather',
       ])
       .where('postId = :postId', { postId })
       .getRawOne();
