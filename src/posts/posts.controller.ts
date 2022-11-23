@@ -28,6 +28,19 @@ export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   /**
+   * [GET] /api/posts/weather/today
+   */
+  @Get('weather/today')
+  async showTodayWeather(@Req() request: Request) {
+    // 클라이언트의 IP주소를 구한다(IPv4)
+    const IPAddress = request.ip;
+
+    // 클라이언트 IP주소에 해당하는 위치를 구한다.
+    const result = await this.postsService.getWeatherData(IPAddress);
+    return JSON.stringify(result);
+  }
+
+  /**
    * [POST] /api/posts/
    */
   @UseGuards(AuthenticatedGuard)
